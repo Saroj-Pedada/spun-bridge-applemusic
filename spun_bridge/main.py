@@ -8,7 +8,7 @@ from . import api as api_module
 from .browser import Driver
 from .mpris import MprisService
 
-PROFILE_DIR = Path.home() / ".config" / "cider-shim" / "chrome-profile"
+PROFILE_DIR = Path.home() / ".config" / "spun-bridge" / "chrome-profile"
 POLL_INTERVAL = 1.0
 
 
@@ -29,13 +29,13 @@ async def poll_loop(driver: Driver, mpris: MprisService):
 async def async_main():
     driver = Driver(PROFILE_DIR)
     stop_event = asyncio.Event()
-    driver.on_disconnect = lambda: (print("[cider-shim] Chrome was closed -- shutting down."), stop_event.set())
-    print("[cider-shim] Launching Chrome against beta.music.apple.com ...")
+    driver.on_disconnect = lambda: (print("[spun-bridge] Chrome was closed -- shutting down."), stop_event.set())
+    print("[spun-bridge] Launching Chrome against beta.music.apple.com ...")
     await driver.start()
 
     mpris = MprisService(driver)
     await mpris.start()
-    print(f"[cider-shim] Registered MPRIS service as {mpris.player.__class__.__module__}")
+    print(f"[spun-bridge] Registered MPRIS service as {mpris.player.__class__.__module__}")
 
     app, port = api_module.build_app(driver)
     runner = web.AppRunner(app)
@@ -45,7 +45,7 @@ async def async_main():
 
     token_path = api_module.TOKEN_PATH
     print(f"""
-[cider-shim] Ready.
+[spun-bridge] Ready.
   - If Chrome shows Apple Music but you're signed out, log in there now.
   - In Spun: Queue tab -> Connect to Cider (pairing auto-approves), OR
     Use an app token, pasting the token from: {token_path}
@@ -60,7 +60,7 @@ async def async_main():
         loop.add_signal_handler(sig, stop_event.set)
     await stop_event.wait()
 
-    print("\n[cider-shim] Shutting down ...")
+    print("\n[spun-bridge] Shutting down ...")
     poll_task.cancel()
     await runner.cleanup()
     await driver.stop()

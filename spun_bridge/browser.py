@@ -159,7 +159,7 @@ class Driver:
             await self.page.evaluate(f"async () => {{ const mk = {_GET_MK}; if (mk) {{ {expr} }} }}")
             return True
         except Exception as e:
-            print(f"[cider-shim] driver call failed: {expr!r} -> {e}")
+            print(f"[spun-bridge] driver call failed: {expr!r} -> {e}")
             return False
 
     async def play(self):

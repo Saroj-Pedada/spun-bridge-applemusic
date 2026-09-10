@@ -11,7 +11,7 @@ from pathlib import Path
 
 from aiohttp import web
 
-TOKEN_PATH = Path.home() / ".config" / "cider-shim" / "token.json"
+TOKEN_PATH = Path.home() / ".config" / "spun-bridge" / "token.json"
 PORT = 10767
 
 
@@ -70,7 +70,7 @@ class Api:
             body = await request.json()
         except Exception:
             body = {}
-        print(f"[cider-shim] Pairing request from '{body.get('app_name', '?')}' -- auto-approved.")
+        print(f"[spun-bridge] Pairing request from '{body.get('app_name', '?')}' -- auto-approved.")
         return web.json_response({"data": {"token": self.token}})
 
     async def client_info(self, request):
@@ -174,10 +174,10 @@ class Api:
     async def queue_move(self, request):
         # MusicKit JS has no confirmed public reorder-in-place call; report
         # "not supported" rather than silently doing nothing.
-        return web.json_response({"error": "not supported by cider-shim yet"}, status=404)
+        return web.json_response({"error": "not supported by spun-bridge yet"}, status=404)
 
     async def queue_remove(self, request):
-        return web.json_response({"error": "not supported by cider-shim yet"}, status=404)
+        return web.json_response({"error": "not supported by spun-bridge yet"}, status=404)
 
     # --- catalog passthrough (search, library, storefront, radio, disc) ----
     async def amapi_run_v3(self, request):

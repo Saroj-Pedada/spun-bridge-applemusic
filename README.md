@@ -17,14 +17,14 @@ contract -- no Cider code is used or distributed).
 ## How it works
 
 ```
- Spun  <--MPRIS (D-Bus)-->  cider-shim  <--CDP-->  Chrome  <--MusicKit JS-->  Apple Music
- Spun  <--HTTP :10767 -->  cider-shim
+ Spun  <--MPRIS (D-Bus)-->  spun-bridge  <--CDP-->  Chrome  <--MusicKit JS-->  Apple Music
+ Spun  <--HTTP :10767 -->  spun-bridge
 ```
 
 - **Chrome** (a real, unmodified browser) loads `beta.music.apple.com`. You
   sign in there like you would anywhere else. Playback happens entirely
   inside Apple's own official web player.
-- **cider-shim** reads and controls that page's own MusicKit JS instance
+- **spun-bridge** reads and controls that page's own MusicKit JS instance
   (via [Playwright](https://playwright.dev)) -- the same JS object Apple's
   own site already created after you log in. It doesn't touch any
   developer credentials of its own.
@@ -54,8 +54,8 @@ machines](#multiple-machines-eg-a-friends-laptop) below.
 ## Install
 
 ```bash
-git clone <this-repo-url> ~/cider-shim
-cd ~/cider-shim
+git clone <this-repo-url> ~/spun-bridge
+cd ~/spun-bridge
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 ```
@@ -71,22 +71,22 @@ already has it:
 ls ~/.config/chromium/WidevineCdm    # or ~/.config/google-chrome/WidevineCdm
 ```
 
-If that exists, seed cider-shim's dedicated profile with it once:
+If that exists, seed spun-bridge's dedicated profile with it once:
 
 ```bash
-mkdir -p ~/cider-shim/chrome-profile
-cp -r ~/.config/chromium/WidevineCdm ~/cider-shim/chrome-profile/
+mkdir -p ~/.config/spun-bridge/chrome-profile
+cp -r ~/.config/chromium/WidevineCdm ~/.config/spun-bridge/chrome-profile/
 ```
 
 If it doesn't exist yet anywhere, open your regular browser once, play any
 DRM-protected video (a streaming service, YouTube Premium download, etc.)
-to trigger the download, then copy it as above. cider-shim's own profile
+to trigger the download, then copy it as above. spun-bridge's own profile
 also has component updates left enabled, so it should eventually fetch
 Widevine on its own even without the manual copy -- the copy just avoids
 waiting for that.
 
-By default cider-shim expects `/usr/bin/chromium` at
-`cider_shim/browser.py` (`executable_path`). Edit that if your browser
+By default spun-bridge expects `/usr/bin/chromium` at
+`spun_bridge/browser.py` (`executable_path`). Edit that if your browser
 lives elsewhere (e.g. Google Chrome).
 
 ## Run
@@ -95,25 +95,27 @@ lives elsewhere (e.g. Google Chrome).
 ./start.sh
 ```
 
-This starts cider-shim (which opens a visible Chrome window -- log in
+This starts spun-bridge (which opens a visible Chrome window -- log in
 there the first time; it's remembered after) and then launches Spun.
 
 In Spun: **Queue tab -> Connect to Cider**. Pairing auto-approves (it's
 your own local instance, so there's no real device-approval step). The
-token is saved at `~/.config/cider-shim/token.json` if you ever need it
+token is saved at `~/.config/spun-bridge/token.json` if you ever need it
 for the manual "Use an app token" fallback.
 
 ```bash
 ./stop.sh
 ```
 
-Stops cider-shim and its Chrome instance. (Closing the Chrome window
-yourself also cleanly shuts cider-shim down.)
+Stops spun-bridge and its Chrome instance. (Closing the Chrome window
+yourself also cleanly shuts spun-bridge down.)
 
 ## Multiple machines (e.g. a friend's laptop)
 
-Copy the repo over (skip `.venv` and `chrome-profile` -- rebuild those
-fresh), then repeat the Install + Widevine setup steps on that machine.
+Copy the repo over (skip `.venv` -- rebuild that fresh on the other
+machine), then repeat the Install + Widevine setup steps there. The Chrome
+profile and login live outside the repo, under `~/.config/spun-bridge/`,
+so there's nothing there to carry over -- each person logs in fresh.
 Each person needs:
 
 - their own copy of this repo, running locally
@@ -142,8 +144,8 @@ search result.
   real logged-in session, not just from Apple's docs, since those don't
   always match reality. If Apple changes their web app's internals, some
   of this may need re-checking -- see `Driver.raw_debug_keys()` in
-  `cider_shim/browser.py`, and the shim logs the real JS error whenever a
-  page call throws (`cider_shim/browser.py`, `_call`), which is usually
+  `spun_bridge/browser.py`, and the shim logs the real JS error whenever a
+  page call throws (`spun_bridge/browser.py`, `_call`), which is usually
   enough to spot what changed.
 
 ## Troubleshooting
@@ -151,8 +153,8 @@ search result.
 - **"Check Spun's API permissions in Cider"**: Spun has a stale token
   from a previous pairing (e.g. against real Cider, or an older shim
   run). Reconnect via Queue -> Connect to Cider.
-- **Nothing plays / seek does nothing**: check `~/.cache/cider-shim/shim.log`
-  for the actual JS error cider-shim caught.
+- **Nothing plays / seek does nothing**: check `~/.cache/spun-bridge/shim.log`
+  for the actual JS error spun-bridge caught.
 - **Spun says Cider isn't reachable**: the Chrome window was probably
   closed -- rerun `./start.sh`.
 
