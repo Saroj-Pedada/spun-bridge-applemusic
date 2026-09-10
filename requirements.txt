@@ -1,0 +1,3 @@
+playwright
+dbus-next
+aiohttp

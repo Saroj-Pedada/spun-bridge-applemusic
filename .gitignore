@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.pyc
+chrome-profile/
+*.log
+
+# Never commit -- personal pairing secret and machine-specific state
+token.json
